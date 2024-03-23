@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        * {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(#fff7f9,#abe1d8);
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        h1 {
+            color: #2b2626;
+            margin-bottom: 20px;
+        }
+        .task-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .task-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .task-item button {
+            background-color: #f4f4f4;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .task-item button:hover {
+            background-color: #ddd;
+        }
+        .task-item button:active {
+            background-color: #ccc;
+        }
+        .task-item button:focus {
+            outline: none;
+        }
+        .task-item label {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Task Manager</h1>
+        <input type="text" id="taskInput" placeholder="Enter a task">
+        <button id="addTaskBtn">Add Task</button>
+        <ul class="task-list" id="taskList"></ul>
+    </div>
+    <script>
+        const taskInput = document.getElementById('taskInput');
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        const taskList = document.getElementById('taskList');
+
+        function renderTasks() {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            taskList.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const taskItem = document.createElement('li');
+                taskItem.classList.add('task-item');
+                taskItem.innerHTML = `
+                    <input type="checkbox" id="task-${index}" ${task.completed ? 'checked' : ''}>
+                    <label for="task-${index}">${task.description}</label>
+                    <button onclick="editTask(${index}, '${task.description}')">Edit</button>
+                    <button onclick="deleteTask(${index})">Delete</button>
+                `;
+                taskList.appendChild(taskItem);
+                const taskInputEl = document.getElementById(`task-${index}`);
+                taskInputEl.addEventListener('change', () => {
+                    tasks[index].completed = taskInputEl.checked;
+                    localStorage.setItem('tasks', JSON.stringify(tasks));
+                });
+            });
+        }
+
+        function addTask() {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.push({ description: taskInput.value, completed: false });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            taskInput.value = '';
+            renderTasks();
+        }
+
+        function deleteTask(index) {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.splice(index, 1);
+localStorage.setItem('tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        function editTask(index, description) {
+            taskInput.value = description;
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks[index].description = taskInput.value;
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        addTaskBtn.addEventListener('click', addTask);
+        renderTasks();
+    </script>
+</body>
+</html>
